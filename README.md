@@ -1,6 +1,6 @@
 THIS IS AN EXPERIMENTAL VERSION. PRODUCTION USE IS NOT RECOMMENDED
 
-# passport-civic
+# passport-dock-io
 
 [Passport](http://passportjs.org/) strategy for authenticating with [Dock.io](https://dock.io/)
 
