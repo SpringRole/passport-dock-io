@@ -37,21 +37,8 @@ Strategy.prototype.authenticate = function(req) {
     //     }
     //     self.success(user, info)
     // }
-    var code = "IjViZDg5Njg5MzAxY2QxMDAwMTc2OGQ1ZCI.bD9uN8dsS19cRUgTRh34b4lAAZA"
-    this.setupConnection(code).then(function() {
-        getUserData(this._user_data.connection_addr, this._ipfs_addr, this._private_key).then(function(jsonData){
-            console.log("JSON DATA", jsonData)
-            var payload={
-                user_data:self._user_data,
-                access_token: self._access_token,
-                scopes: self._scopes,
-                id: self._id,
-                ipfs_addr: self.ipfs_addr,
-                json_data: jsonData.json_data
-            }
-
-                console.log('payload:-\n',payload)
-        })
+    var code = "IjViZTAzYjk5YjNmNjNhMDAwMTg2YjVhOSI.HiWMehHTWtyvgR_k2HtwDCyrMNc"
+    this.setupConnection(code).then(function(dataObject) {
     })
 
 }
@@ -67,18 +54,14 @@ Strategy.prototype.setupConnection= function(code) {
             self._access_token = access_token
             console.log('access token:- ',access_token)
             initiateConnection(self._access_token, self._client_id, self._client_secret).then(function(connectionDetails){
-                self._scopes = connectionDetails.scopes
-                self._user_data = connectionDetails.user_data
-                self._id = connectionDetails.id
                 console.log('scopes:- ',connectionDetails.scopes)
                 console.log('user_data:- ',connectionDetails.user_data)
                 console.log('id:- ',connectionDetails.id)
-                confirmConnection(self._private_key, self._user_data.connection_addr).then( function (packageDetails) {
+                confirmConnection(self._private_key, connectionDetails.user_data.connection_addr).then( function (packageDetails) {
                     // if(self._client_secret != packageDetails.secret)
                     //     throw new Error("Client secret and the retrieved secret do not match.")
-                    self._ipfs_addr = packageDetails.ipfs_addr
                     console.log('package_details :-\n',packageDetails)
-                    resolve()
+                    resolve({connectionDetails: connectionDetails, packageDetails: packageDetails})
                 })
             })
         })
@@ -86,6 +69,21 @@ Strategy.prototype.setupConnection= function(code) {
     })
 }
 
+Strategy.prototype.getDetails = function(connection_addr, ipfs_addr){
+    getUserData(connection_addr, ipfs_addr, this._private_key).then(function(jsonData){
+        console.log("JSON DATA", jsonData.$data)
+        // var payload={
+        //     user_data:self._user_data,
+        //     access_token: self._access_token,
+        //     scopes: self._scopes,
+        //     id: self._id,
+        //     ipfs_addr: self.ipfs_addr,
+        //     json_data: jsonData.json_data
+        // }
+
+            // console.log('payload:-\n',payload)
+    })
+}
 
 /**
  * @desc Gets the acces token from dock.io
@@ -169,7 +167,6 @@ var getUserData = function(connection_addr, ipfs_addr, private_key){
         }
         console.log("getting final data...\n")
         request(options).then(function(parsedBody) {
-            console.log(parsedBody)
             resolve(parsedBody)
         })
     })
@@ -182,20 +179,67 @@ var closeConnection = function (private_key) {
             "Content-Type": "application/json",
             "Authorization": "PrivateKey "+private_key
         },
-        uri:"https://gateway.dock.io/v1/connection/836e5c8c58d481adf1c38534e31b41588bb01b01/close"
+        uri:"https://gateway.dock.io/v1/connection/fac096c7d6b452acf9a391856bc7d968fdd38d76/close"
     }
-    console.log(private_key)
-    request(options).then(function(){
+    request(options).then(function(parsedBody){
+        console.log(parsedBody)
         console.log("connection closed")
     })
 }
 
-var options = {
-    client_id:"5b648ea5f09b030007bacb92",
-    client_secret:"karlo",
-    private_key:"dbd31c490ca0f56f267ea9dec7a37995e9bf7c0e69020d4d7004e5e30480f468"
+var getPackages = function(connection_addr, private_key){
+    return new Promise(function(resolve,reject) {
+        var options={
+            method:"GET",
+            headers:{
+                "Content-Type": "application/json",
+                "Authorization": "PrivateKey "+private_key
+            },
+            uri:"https://gateway.dock.io/v1/all-connections",
+            json:true
+        }
+        console.log("packages data...\n")
+        request(options).then(function(parsedBody) {
+            console.log(parsedBody[parsedBody.length-1].package_headers)
+            resolve(parsedBody)
+        })
+    })
 }
-closeConnection(options.private_key)
+
+var registerWebhook = function(private_key){
+    return new Promise(function(resolve,reject) {
+        var options={
+            method:"PUT",
+            headers:{
+                "Content-Type": "application/json",
+                "Authorization": "PrivateKey "+private_key
+            },
+            body:{
+                "payload_url":"https://webhook.site/fbf0bfe4-6bd1-47f7-822c-44dbac25a44a",
+                "secret":"ipsum mellons"
+            },
+            uri:"https://gateway.dock.io/v1/webhook",
+            json:true
+        }
+        console.log("packages data...\n")
+        request(options).then(function(parsedBody) {
+            console.log(parsedBody)
+            resolve(parsedBody)
+        })
+    })
+}
+
+
+var options = {
+    client_id:"",
+    client_secret:"",
+    private_key:""
+}
+// closeConnection(options.private_key)
+registerWebhook(options.private_key)
 // dock = new Strategy(options)
-// data = dock.authenticate()
-// console.log(data)
+// dock.getDetails("17f3b51fe8d8e2c870ba0e8d2847744aa3db8e0b","QmnNENUTzhxP5gHU2uEgk73tmbva84PGMeEVHihvEqDT96")
+// dock.authenticate()
+// getPackages("17f3b51fe8d8e2c870ba0e8d2847744aa3db8e0b", options.private_key)
+
+var str = "https://app.dock.io/oauth/authorize?client_id=5b648ea5f09b030007bacb92&redirect_uri=https://echo.dock.io/testclient-oauth/&response_type=code&scope=https://getdock.github.io/schemas/basicUserProfile.json,https://getdock.github.io/schemas/email.json,https://getdock.github.io/schemas/jobExperience.json,https://getdock.github.io/schemas/skills.json,https://getdock.github.io/schemas/userProfile.json,,https://getdock.github.io/schemas/contactInfo.json"
