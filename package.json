@@ -2,7 +2,7 @@
   "name": "passport-dock-io",
   "version": "0.1.0",
   "description": "A PassportJs strategy for Dock.io",
-  "main": "index.js",
+  "main": "./lib",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
