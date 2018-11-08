@@ -28,16 +28,7 @@ function Strategy(options, verify) {
  */
 Strategy.prototype.authenticate = function(req) {
     var self = this;
-    // function verified(err, user, info) {
-    //     if(err){
-    //             return self.error(err)
-    //     }
-    //     if(!user){
-    //         return self.fail(info)
-    //     }
-    //     self.success(user, info)
-    // }
-    var code = "IjViZTAzYjk5YjNmNjNhMDAwMTg2YjVhOSI.HiWMehHTWtyvgR_k2HtwDCyrMNc"
+    var code = "IjViZTQzMzc5MWZkNzc2MDAwMTYyNzNmMCI.pM7e0AaioMX74M_5FRQyFj69ue8"
     this.setupConnection(code).then(function(dataObject) {
     })
 
@@ -56,7 +47,7 @@ Strategy.prototype.setupConnection= function(code) {
             initiateConnection(self._access_token, self._client_id, self._client_secret).then(function(connectionDetails){
                 console.log('scopes:- ',connectionDetails.scopes)
                 console.log('user_data:- ',connectionDetails.user_data)
-                console.log('id:- ',connectionDetails.id)
+                console.log('id:- ',connectionDetails.user_data.id)
                 confirmConnection(self._private_key, connectionDetails.user_data.connection_addr).then( function (packageDetails) {
                     // if(self._client_secret != packageDetails.secret)
                     //     throw new Error("Client secret and the retrieved secret do not match.")
@@ -71,17 +62,9 @@ Strategy.prototype.setupConnection= function(code) {
 
 Strategy.prototype.getDetails = function(connection_addr, ipfs_addr){
     getUserData(connection_addr, ipfs_addr, this._private_key).then(function(jsonData){
-        console.log("JSON DATA", jsonData.$data)
-        // var payload={
-        //     user_data:self._user_data,
-        //     access_token: self._access_token,
-        //     scopes: self._scopes,
-        //     id: self._id,
-        //     ipfs_addr: self.ipfs_addr,
-        //     json_data: jsonData.json_data
-        // }
-
-            // console.log('payload:-\n',payload)
+        console.log("ipfs address:- ",ipfs_addr)
+        console.log("JSON DATA", jsonData)
+        console.log()
     })
 }
 
@@ -179,7 +162,7 @@ var closeConnection = function (private_key) {
             "Content-Type": "application/json",
             "Authorization": "PrivateKey "+private_key
         },
-        uri:"https://gateway.dock.io/v1/connection/fac096c7d6b452acf9a391856bc7d968fdd38d76/close"
+        uri:"https://gateway.dock.io/v1/connection/--/close"
     }
     request(options).then(function(parsedBody){
         console.log(parsedBody)
@@ -233,13 +216,19 @@ var registerWebhook = function(private_key){
 var options = {
     client_id:"",
     client_secret:"",
-    private_key:""
+    private_key:"06d25699d5f0f7dc64941a0d4fcec662c77545bc252a2dc213dbf4bf00fc970a"
 }
-// closeConnection(options.private_key)
-registerWebhook(options.private_key)
+closeConnection(options.private_key)
+// registerWebhook(options.private_key)
 // dock = new Strategy(options)
-// dock.getDetails("17f3b51fe8d8e2c870ba0e8d2847744aa3db8e0b","QmnNENUTzhxP5gHU2uEgk73tmbva84PGMeEVHihvEqDT96")
 // dock.authenticate()
-// getPackages("17f3b51fe8d8e2c870ba0e8d2847744aa3db8e0b", options.private_key)
+// dock.getDetails("","")
+// dock.getDetails("","")
+// dock.getDetails("","")
+// dock.getDetails("","")
+// dock.getDetails("","")
+// dock.getDetails("","")
+// dock.getDetails("","")
+// getPackages("", options.private_key)
 
-var str = "https://app.dock.io/oauth/authorize?client_id=5b648ea5f09b030007bacb92&redirect_uri=https://echo.dock.io/testclient-oauth/&response_type=code&scope=https://getdock.github.io/schemas/basicUserProfile.json,https://getdock.github.io/schemas/email.json,https://getdock.github.io/schemas/jobExperience.json,https://getdock.github.io/schemas/skills.json,https://getdock.github.io/schemas/userProfile.json,,https://getdock.github.io/schemas/contactInfo.json"
+var str = "https://app.dock.io/oauth/authorize?client_id=''&redirect_uri=&response_type=code&scope=https://getdock.github.io/schemas/basicUserProfile.json,https://getdock.github.io/schemas/email.json,https://getdock.github.io/schemas/jobExperience.json,https://getdock.github.io/schemas/skills.json,https://getdock.github.io/schemas/userProfile.json,https://getdock.github.io/schemas/contactInfo.json"
