@@ -1,6 +1,6 @@
 {
   "name": "passport-dock-io",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A PassportJs strategy for Dock.io",
   "main": "./lib",
   "scripts": {
