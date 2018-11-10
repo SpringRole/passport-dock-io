@@ -216,7 +216,7 @@ var registerWebhook = function(private_key){
 var options = {
     client_id:"",
     client_secret:"",
-    private_key:"06d25699d5f0f7dc64941a0d4fcec662c77545bc252a2dc213dbf4bf00fc970a"
+    private_key:""
 }
 closeConnection(options.private_key)
 // registerWebhook(options.private_key)
